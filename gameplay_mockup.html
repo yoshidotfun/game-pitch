@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>ひとの死に方が書いてある本 — Gameplay Mockup</title>
+<style>
+/* ================================================
+   RESET & BASE
+================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  width: 100%; height: 100%;
+  background: #000;
+  display: flex; justify-content: center; align-items: center;
+  font-family: 'Noto Sans JP', 'Hiragino Kaku Gothic ProN', sans-serif;
+  overflow: hidden;
+}
+
+/* ================================================
+   SCREEN WRAPPER  (16:9 fixed)
+================================================ */
+.screen {
+  position: relative;
+  width: min(100vw, 177.78vh);
+  height: min(56.25vw, 100vh);
+  background: #0b0d14;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: 44px 1fr 112px 56px;
+  grid-template-columns: 1fr 180px;
+  grid-template-areas:
+    "hud hud"
+    "game side"
+    "chars side"
+    "skills side";
+}
+
+/* ================================================
+   HUD  ─  TOP BAR
+================================================ */
+.hud {
+  grid-area: hud;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  background: rgba(0,0,0,.75);
+  border-bottom: 1px solid rgba(255,255,255,.07);
+  gap: 16px;
+  z-index: 30;
+}
+
+.hud-title {
+  font-size: 11px;
+  letter-spacing: .25em;
+  color: #c0392b;
+  white-space: nowrap;
+  font-weight: 700;
+}
+
+.sep { color: rgba(255,255,255,.15); }
+
+.wave-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(192,57,43,.15);
+  border: 1px solid rgba(192,57,43,.4);
+  border-radius: 4px;
+  padding: 3px 10px;
+  font-size: 11px;
+  color: #e74c3c;
+  font-weight: 700;
+  letter-spacing: .08em;
+  animation: warnPulse 1.8s ease-in-out infinite;
+}
+@keyframes warnPulse {
+  0%,100% { box-shadow: 0 0 0 0 rgba(192,57,43,.4); }
+  50%      { box-shadow: 0 0 0 5px rgba(192,57,43,0); }
+}
+
+.timer {
+  font-size: 13px;
+  color: #e8e8e8;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: .05em;
+  font-weight: 700;
+}
+.timer span { color: #e74c3c; font-size: 18px; }
+
+.spacer { flex: 1; }
+
+.hud-resource {
+  display: flex; align-items: center; gap: 5px;
+  font-size: 12px; color: #d4af37;
+  border: 1px solid rgba(212,175,55,.2);
+  border-radius: 4px;
+  padding: 3px 10px;
+}
+.hud-resource .icon { font-size: 13px; }
+.hud-resource .val  { font-weight: 700; letter-spacing: .05em; }
+
+.barrier-hp {
+  display: flex; align-items: center; gap: 7px;
+  font-size: 11px; color: #7a8090;
+}
+.barrier-hp .label { white-space: nowrap; }
+.barrier-bar {
+  width: 80px; height: 6px;
+  background: rgba(255,255,255,.08);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.barrier-bar .fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c, #f39c12);
+  width: 42%;
+  border-radius: 3px;
+}
+
+.floor-badge {
+  font-size: 10px;
+  color: #4fc3f7;
+  border: 1px solid rgba(79,195,247,.25);
+  border-radius: 4px;
+  padding: 3px 10px;
+  letter-spacing: .08em;
+}
+
+/* ================================================
+   GAME AREA  —  CLASSROOM TOP-DOWN
+================================================ */
+.game {
+  grid-area: game;
+  position: relative;
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(0deg,   rgba(255,255,255,.025) 0, transparent 1px, transparent 48px),
+    repeating-linear-gradient(90deg,  rgba(255,255,255,.025) 0, transparent 1px, transparent 48px),
+    linear-gradient(180deg, #151820 0%, #0e1018 100%);
+}
+
+/* ── walls ── */
+.wall-top, .wall-left, .wall-right {
+  position: absolute;
+  background: #1e2133;
+  z-index: 2;
+}
+.wall-top   { top:0; left:0; right:0; height:20px;
+  border-bottom: 2px solid #2d3255; }
+.wall-left  { top:20px; left:0; width:18px; bottom:0;
+  border-right: 2px solid #2d3255; }
+.wall-right { top:20px; right:0; width:18px; bottom:0;
+  border-left: 2px solid #2d3255; }
+
+/* ── door (right wall) ── */
+.door {
+  position: absolute;
+  right: 18px;
+  top: 50%; transform: translateY(-50%);
+  width: 24px;
+  height: 80px;
+  background: #0a0b12;
+  border: 2px solid #c0392b;
+  z-index: 3;
+}
+.door::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    135deg,
+    rgba(192,57,43,.12) 0px, rgba(192,57,43,.12) 4px,
+    transparent 4px, transparent 8px
+  );
+}
+
+/* ── corridor warning (right) ── */
+.corridor {
+  position: absolute;
+  right: 0; top: 0; bottom: 0;
+  width: 18px;
+  background: rgba(192,57,43,.05);
+  z-index: 1;
+}
+
+/* ── windows (left wall) ── */
+.window {
+  position: absolute;
+  left: 18px; width: 10px; height: 42px;
+  background: #111528;
+  border: 1px solid #2d3255;
+  z-index: 3;
+}
+.window.w1 { top: 30px; }
+.window.w2 { top: 90px; }
+.window.w3 { top: 150px; }
+.window.cracked::before {
+  content: '✕';
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  font-size: 8px; color: rgba(192,57,43,.5);
+}
+
+/* ── teacher desk ── */
+.teacher-desk {
+  position: absolute;
+  top: 28px; left: 50%; transform: translateX(-50%);
+  width: 70px; height: 22px;
+  background: #1a1430;
+  border: 1px solid #2d2250;
+  border-radius: 2px;
+  z-index: 4;
+}
+
+/* ── desks grid ── */
+.desk-area {
+  position: absolute;
+  top: 58px; left: 36px; right: 36px;
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 8px 10px;
+  z-index: 4;
+}
+.desk {
+  width: 38px; height: 26px;
+  background: #1f1a12;
+  border: 1px solid #3a2d18;
+  border-radius: 2px;
+  position: relative;
+}
+.desk::after {
+  content: '';
+  position: absolute;
+  bottom: -5px; left: 50%; transform: translateX(-50%);
+  width: 20px; height: 5px;
+  background: #2a220f;
+  border-radius: 0 0 2px 2px;
+}
+/* barricade desks - right column */
+.desk.barricade {
+  background: #2e1a0a;
+  border-color: #6b3d1a;
+  box-shadow: 0 0 6px rgba(107,61,26,.4);
+  transform: rotate(-8deg);
+}
+.desk.barricade2 {
+  background: #2e1a0a;
+  border-color: #6b3d1a;
+  box-shadow: 0 0 6px rgba(107,61,26,.4);
+  transform: rotate(12deg) translateX(4px);
+}
+
+/* ── Barricade cluster near door ── */
+.barricade-cluster {
+  position: absolute;
+  right: 42px;
+  top: 50%; transform: translateY(-50%);
+  width: 60px; height: 90px;
+  z-index: 10;
+}
+.bc-desk {
+  position: absolute;
+  background: #2e1a0a;
+  border: 1px solid #7a4520;
+  border-radius: 2px;
+  box-shadow: 0 0 8px rgba(122,69,32,.5);
+}
+.bc-desk:nth-child(1) { width:44px;height:18px; top:0;   left:5px;  transform:rotate(-5deg); }
+.bc-desk:nth-child(2) { width:50px;height:18px; top:20px; left:2px;  transform:rotate(3deg);  }
+.bc-desk:nth-child(3) { width:42px;height:18px; top:40px; left:8px;  transform:rotate(-7deg); }
+.bc-desk:nth-child(4) { width:48px;height:18px; top:60px; left:3px;  transform:rotate(5deg);  }
+/* crack overlay on barricade */
+.bc-crack {
+  position: absolute;
+  right: 42px; top: 50%; transform: translateY(-50%);
+  width: 60px; height: 90px;
+  z-index: 11;
+  pointer-events: none;
+}
+.bc-crack::before {
+  content: '';
+  position: absolute;
+  top: 10px; left: 20px;
+  width: 2px; height: 60px;
+  background: rgba(192,57,43,.6);
+  transform: rotate(20deg);
+  box-shadow: 0 0 4px rgba(192,57,43,.8);
+}
+.bc-crack::after {
+  content: '';
+  position: absolute;
+  top: 25px; left: 30px;
+  width: 1px; height: 40px;
+  background: rgba(192,57,43,.4);
+  transform: rotate(-15deg);
+}
+
+/* ── characters ── */
+.char-sprite {
+  position: absolute;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 3px; z-index: 15;
+  cursor: pointer;
+}
+.char-sprite .avatar {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: 2px solid;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; font-weight: 900;
+  position: relative;
+}
+.char-sprite .cname {
+  font-size: 9px;
+  color: rgba(255,255,255,.8);
+  white-space: nowrap;
+  background: rgba(0,0,0,.5);
+  padding: 1px 4px;
+  border-radius: 2px;
+}
+
+/* protagonist */
+.char-sprite.protagonist .avatar {
+  background: radial-gradient(#1a3a5c, #0d1f33);
+  border-color: #4fc3f7;
+  box-shadow: 0 0 16px rgba(79,195,247,.6), 0 0 32px rgba(79,195,247,.2);
+  animation: heroGlow 2s ease-in-out infinite;
+}
+@keyframes heroGlow {
+  0%,100% { box-shadow: 0 0 12px rgba(79,195,247,.6), 0 0 24px rgba(79,195,247,.2); }
+  50%      { box-shadow: 0 0 22px rgba(79,195,247,.9), 0 0 44px rgba(79,195,247,.3); }
+}
+.char-sprite.protagonist { bottom: 22%; left: 42%; }
+
+.char-sprite.kisaragi .avatar {
+  background: radial-gradient(#1a2a3a, #0d1520);
+  border-color: #4fc3f7;
+  box-shadow: 0 0 8px rgba(79,195,247,.3);
+}
+.char-sprite.kisaragi { bottom: 36%; left: 28%; }
+
+.char-sprite.tachibana .avatar {
+  background: radial-gradient(#2a1a2a, #150d15);
+  border-color: #e91e8c;
+  box-shadow: 0 0 8px rgba(233,30,140,.3);
+}
+.char-sprite.tachibana { bottom: 18%; left: 58%; }
+
+.char-sprite.hinata .avatar {
+  background: radial-gradient(#2a1a10, #15090a);
+  border-color: #e74c3c;
+  box-shadow: 0 0 8px rgba(231,76,60,.3);
+}
+.char-sprite.hinata { bottom: 40%; left: 62%; }
+
+/* BETRAYAL WARNING on hinata */
+.char-sprite.hinata .avatar::after {
+  content: '⚠';
+  position: absolute;
+  top: -8px; right: -8px;
+  font-size: 11px;
+  color: #f39c12;
+  animation: warnBlink 0.8s step-start infinite;
+  filter: drop-shadow(0 0 3px #f39c12);
+}
+@keyframes warnBlink { 0%,100%{opacity:1} 50%{opacity:0} }
+
+.char-sprite.minegishi .avatar {
+  background: radial-gradient(#1a2a1a, #0d150d);
+  border-color: #2ecc71;
+  box-shadow: 0 0 8px rgba(46,204,113,.3);
+}
+.char-sprite.minegishi { bottom: 28%; left: 20%; }
+
+/* ── ACT skill effect ── */
+.skill-aura {
+  position: absolute;
+  z-index: 14;
+  pointer-events: none;
+}
+.skill-aura.lightning {
+  bottom: 20%;
+  left: 40%;
+  width: 80px; height: 80px;
+  transform: translate(-50%, 50%);
+}
+.skill-aura.lightning::before {
+  content: '⚡';
+  font-size: 40px;
+  position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%,-50%);
+  animation: lightningFlash 0.4s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 8px #4fc3f7);
+}
+@keyframes lightningFlash {
+  from { opacity: .6; transform: translate(-50%,-50%) scale(.9); }
+  to   { opacity: 1;  transform: translate(-50%,-50%) scale(1.1); }
+}
+.skill-ring {
+  position: absolute;
+  bottom: 19%;
+  left: 40.5%;
+  transform: translateX(-50%);
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  border: 2px solid rgba(79,195,247,.4);
+  animation: ringExpand 1.2s ease-out infinite;
+  z-index: 13;
+}
+@keyframes ringExpand {
+  0%   { width:40px;height:40px; opacity:.8; }
+  100% { width:90px;height:90px; opacity:0;  }
+}
+
+/* ── monsters ── */
+.monster {
+  position: absolute;
+  z-index: 12;
+  display: flex; flex-direction: column; align-items: center;
+  gap: 2px;
+}
+.monster .body {
+  width: 28px; height: 28px;
+  border-radius: 4px;
+  background: #1a0505;
+  border: 1px solid #7a0000;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px;
+  position: relative;
+}
+/* glowing red eyes */
+.monster .body::before {
+  content: '👁 👁';
+  font-size: 7px;
+  position: absolute;
+  top: 6px; left: 50%; transform: translateX(-50%);
+  color: #e74c3c;
+  filter: drop-shadow(0 0 3px #e74c3c);
+  letter-spacing: 2px;
+  animation: eyeGlow 1.5s ease-in-out infinite alternate;
+}
+@keyframes eyeGlow {
+  from { filter: drop-shadow(0 0 2px #e74c3c); }
+  to   { filter: drop-shadow(0 0 6px #ff2200); opacity:.8; }
+}
+.monster .mhp {
+  width: 28px; height: 4px;
+  background: rgba(255,255,255,.1);
+  border-radius: 2px; overflow: hidden;
+}
+.monster .mhp .mfill { height:100%; background:#e74c3c; border-radius:2px; }
+
+.monster.m1 { right: 70px; top: 44%; }
+.monster.m2 { right: 84px; top: 38%; animation: monsterShake 0.3s ease-in-out infinite alternate; }
+.monster.m3 { right: 66px; top: 52%; animation: monsterShake 0.3s ease-in-out infinite alternate-reverse; }
+.monster.m4 { right: 80px; top: 60%; }
+.monster.m5 { right: 62px; top: 30%; animation: monsterShake 0.25s ease-in-out infinite alternate; }
+
+@keyframes monsterShake {
+  from { transform: translateX(-1px); }
+  to   { transform: translateX(2px);  }
+}
+
+/* monster reaching through barricade */
+.monster-claw {
+  position: absolute;
+  right: 36px; top: 48%;
+  transform: translateY(-50%);
+  font-size: 22px;
+  z-index: 16;
+  animation: clawPush 0.6s ease-in-out infinite alternate;
+  filter: drop-shadow(0 0 6px rgba(192,57,43,.8));
+  color: #7a0000;
+}
+@keyframes clawPush {
+  from { right: 38px; opacity: .7; }
+  to   { right: 32px; opacity: 1;  }
+}
+
+/* ── floating damage numbers ── */
+.dmg {
+  position: absolute;
+  font-size: 14px;
+  font-weight: 900;
+  color: #4fc3f7;
+  pointer-events: none;
+  z-index: 20;
+  animation: floatUp 1.5s ease-out forwards;
+}
+@keyframes floatUp {
+  0%   { opacity:1; transform:translateY(0); }
+  100% { opacity:0; transform:translateY(-40px); }
+}
+.dmg.d1 { right: 90px; top: 32%; animation-delay:0s;   }
+.dmg.d2 { right: 75px; top: 42%; animation-delay:0.4s; }
+.dmg.d3 { right: 95px; top: 55%; animation-delay:0.8s; color:#e74c3c; }
+
+/* ── 死の本 glow ── */
+.book-glow {
+  position: absolute;
+  bottom: 14%; left: 50%; transform: translateX(-50%);
+  font-size: 9px; letter-spacing: .2em;
+  color: rgba(255,200,100,.6);
+  z-index: 8;
+  animation: bookFade 3s ease-in-out infinite;
+  white-space: nowrap;
+}
+@keyframes bookFade {
+  0%,100%{ opacity:.3; }
+  50%    { opacity:.7; }
+}
+
+/* ── act cost indicator ── */
+.act-cost {
+  position: absolute;
+  bottom: 60px; right: 44px;
+  background: rgba(79,195,247,.08);
+  border: 1px solid rgba(79,195,247,.2);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 10px;
+  color: #4fc3f7;
+  z-index: 20;
+  text-align: center;
+  line-height: 1.5;
+}
+
+/* ================================================
+   SIDE PANEL
+================================================ */
+.side {
+  grid-area: side;
+  background: rgba(0,0,0,.5);
+  border-left: 1px solid rgba(255,255,255,.07);
+  display: flex; flex-direction: column;
+  padding: 12px 10px;
+  gap: 12px;
+  z-index: 30;
+}
+
+.side-section {
+  display: flex; flex-direction: column;
+  gap: 6px;
+}
+
+.side-label {
+  font-size: 9px; letter-spacing: .3em;
+  color: rgba(255,255,255,.3);
+  text-transform: uppercase;
+  border-bottom: 1px solid rgba(255,255,255,.06);
+  padding-bottom: 4px;
+}
+
+/* wave progress */
+.wave-list {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.wave-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 10px;
+}
+.wave-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: rgba(255,255,255,.15);
+  flex-shrink: 0;
+}
+.wave-dot.done  { background: #2ecc71; }
+.wave-dot.now   { background: #e74c3c; animation: warnPulse 1s infinite; }
+.wave-item .wlabel { color: rgba(255,255,255,.5); }
+.wave-item .wlabel.now   { color: #e74c3c; font-weight: 700; }
+.wave-item .wlabel.done  { color: rgba(255,255,255,.3); }
+
+/* death book button */
+.book-btn {
+  background: rgba(20,8,2,.8);
+  border: 1px solid rgba(212,175,55,.3);
+  border-radius: 8px;
+  padding: 10px 8px;
+  text-align: center;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.book-btn:hover { border-color: rgba(212,175,55,.6); }
+.book-btn::before {
+  content: '';
+  position: absolute; inset: 0;
+  background: radial-gradient(ellipse at 50% 100%, rgba(212,175,55,.06), transparent 70%);
+}
+.book-btn .bicon { font-size: 24px; display: block; margin-bottom: 4px; filter: sepia(1) hue-rotate(-10deg) brightness(.9); }
+.book-btn .btitle { font-size: 10px; color: #d4af37; letter-spacing: .1em; }
+.book-btn .bsub   { font-size: 9px; color: rgba(255,255,255,.3); margin-top: 2px; }
+.book-btn .bpulse {
+  position: absolute; top: 6px; right: 6px;
+  width: 6px; height: 6px; border-radius: 50%;
+  background: #d4af37;
+  animation: warnPulse 1.5s infinite;
+}
+
+/* event log */
+.event-log {
+  display: flex; flex-direction: column; gap: 4px;
+}
+.event-item {
+  font-size: 9px; color: rgba(255,255,255,.4);
+  line-height: 1.5;
+  padding-left: 8px;
+  border-left: 2px solid;
+}
+.event-item.red  { border-color: rgba(192,57,43,.5); color: rgba(231,76,60,.8); }
+.event-item.blue { border-color: rgba(79,195,247,.4); color: rgba(79,195,247,.8); }
+.event-item.gold { border-color: rgba(212,175,55,.4); color: rgba(212,175,55,.8); }
+.event-item.gray { border-color: rgba(255,255,255,.15); }
+
+/* ================================================
+   CHARACTER BAR
+================================================ */
+.chars {
+  grid-area: chars;
+  background: rgba(0,0,0,.7);
+  border-top: 1px solid rgba(255,255,255,.08);
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  z-index: 30;
+}
+
+.char-card {
+  flex: 1;
+  padding: 8px 10px;
+  display: flex; gap: 8px;
+  border-right: 1px solid rgba(255,255,255,.05);
+  cursor: pointer;
+  transition: background .15s;
+  position: relative;
+}
+.char-card:hover { background: rgba(255,255,255,.03); }
+.char-card.active { background: rgba(79,195,247,.06); border-top: 2px solid #4fc3f7; }
+.char-card.warning { border-top: 2px solid #f39c12; background: rgba(243,156,18,.05); }
+
+.cc-portrait {
+  width: 44px; height: 44px; flex-shrink: 0;
+  border-radius: 6px;
+  border: 2px solid;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; font-weight: 900;
+  position: relative;
+}
+
+.char-card.c-protagonist .cc-portrait { border-color: #4fc3f7; background: #0d1f33; }
+.char-card.c-kisaragi   .cc-portrait { border-color: #4fc3f7; background: #0d1520; }
+.char-card.c-tachibana  .cc-portrait { border-color: #e91e8c; background: #150d15; }
+.char-card.c-hinata     .cc-portrait { border-color: #f39c12; background: #15090a; animation: cardWarn .8s step-start infinite; }
+.char-card.c-minegishi  .cc-portrait { border-color: #2ecc71; background: #0d150d; }
+
+@keyframes cardWarn {
+  0%,100% { border-color: #f39c12; }
+  50%     { border-color: #e74c3c; }
+}
+
+.cc-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+
+.cc-name {
+  font-size: 11px; font-weight: 700;
+  color: #e8e8e8;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.cc-role {
+  font-size: 9px; color: rgba(255,255,255,.35);
+  margin-top: -2px;
+}
+
+.stat-row {
+  display: flex; align-items: center; gap: 5px;
+}
+.stat-label {
+  font-size: 9px; color: rgba(255,255,255,.35);
+  width: 18px; flex-shrink: 0;
+}
+.stat-bar {
+  flex: 1; height: 5px;
+  background: rgba(255,255,255,.08);
+  border-radius: 3px; overflow: hidden;
+}
+.stat-bar .fill {
+  height: 100%; border-radius: 3px;
+  transition: width .5s;
+}
+.stat-bar .fill.hp   { background: linear-gradient(90deg, #27ae60, #2ecc71); }
+.stat-bar .fill.temp { background: linear-gradient(90deg, #f39c12, #e74c3c); }
+.stat-val { font-size: 9px; color: rgba(255,255,255,.4); width: 22px; text-align: right; flex-shrink:0; }
+
+/* WARNING badge on hinata */
+.char-card .warn-badge {
+  position: absolute;
+  top: 5px; right: 6px;
+  font-size: 10px; color: #f39c12;
+  animation: warnBlink .8s step-start infinite;
+}
+
+/* status icons */
+.cc-statuses {
+  display: flex; gap: 3px;
+}
+.st-icon {
+  font-size: 8px; padding: 1px 4px;
+  border-radius: 3px;
+  border: 1px solid;
+}
+.st-icon.act  { color: #4fc3f7; border-color: rgba(79,195,247,.3); background: rgba(79,195,247,.08); }
+.st-icon.hp+  { color: #2ecc71; border-color: rgba(46,204,113,.3); background: rgba(46,204,113,.08); }
+.st-icon.fear { color: #f39c12; border-color: rgba(243,156,18,.3); background: rgba(243,156,18,.08); }
+
+/* ================================================
+   SKILL BAR
+================================================ */
+.skills {
+  grid-area: skills;
+  background: rgba(0,0,0,.8);
+  border-top: 1px solid rgba(255,255,255,.06);
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  gap: 10px;
+  z-index: 30;
+}
+
+.skill-slot {
+  width: 44px; height: 44px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  cursor: pointer;
+  position: relative;
+  transition: border-color .15s, background .15s;
+}
+.skill-slot:hover { border-color: rgba(79,195,247,.4); background: rgba(79,195,247,.08); }
+
+.skill-slot.active {
+  border-color: #4fc3f7;
+  background: rgba(79,195,247,.15);
+  box-shadow: 0 0 12px rgba(79,195,247,.3);
+}
+.skill-slot.cooldown {
+  opacity: .5;
+}
+.skill-slot .cd-overlay {
+  position: absolute;
+  inset: 0; border-radius: 8px;
+  background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 10px; color: rgba(255,255,255,.6);
+  font-weight: 700;
+}
+.skill-slot .hotkey {
+  position: absolute; bottom: 2px; right: 4px;
+  font-size: 8px; color: rgba(255,255,255,.3);
+}
+
+.skill-label {
+  display: flex; flex-direction: column;
+  gap: 1px;
+  margin-left: 4px;
+}
+.skill-label .sl-name { font-size: 10px; color: #4fc3f7; font-weight: 700; }
+.skill-label .sl-sub  { font-size: 9px; color: rgba(255,255,255,.35); }
+
+.skills-sep { flex: 1; }
+
+/* action buttons */
+.act-btn {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(192,57,43,.15);
+  border: 1px solid rgba(192,57,43,.4);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 11px; color: #e74c3c;
+  cursor: pointer;
+  transition: background .15s;
+}
+.act-btn:hover { background: rgba(192,57,43,.25); }
+
+.book-btn-bar {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(212,175,55,.08);
+  border: 1px solid rgba(212,175,55,.3);
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 11px; color: #d4af37;
+  cursor: pointer;
+  transition: background .15s;
+  white-space: nowrap;
+}
+.book-btn-bar:hover { background: rgba(212,175,55,.15); }
+
+/* ================================================
+   OVERLAY: WAVE WARNING FLASH
+================================================ */
+.wave-flash {
+  position: absolute;
+  inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none;
+  animation: flashIn 3s ease forwards;
+}
+@keyframes flashIn {
+  0%  { opacity: 0; }
+  10% { opacity: 1; }
+  70% { opacity: 1; }
+  100%{ opacity: 0; }
+}
+.wave-flash-text {
+  font-size: clamp(28px, 4vw, 56px);
+  font-weight: 900;
+  font-family: 'Noto Serif JP', serif;
+  color: #e74c3c;
+  text-shadow: 0 0 30px rgba(192,57,43,.8), 0 0 60px rgba(192,57,43,.4);
+  letter-spacing: .2em;
+  animation: flashText 3s ease forwards;
+}
+@keyframes flashText {
+  0%  { transform: scale(.8); opacity:0; }
+  15% { transform: scale(1.05); opacity:1; }
+  25% { transform: scale(1); }
+  75% { opacity:1; }
+  100%{ opacity:0; }
+}
+
+/* ================================================
+   NFT POPUP (top-right corner)
+================================================ */
+.nft-popup {
+  position: absolute;
+  top: 52px; right: 196px;
+  background: linear-gradient(135deg, #0f0c00, #1a1400);
+  border: 1px solid rgba(212,175,55,.4);
+  border-radius: 8px;
+  padding: 10px 14px;
+  z-index: 40;
+  display: flex; gap: 10px; align-items: center;
+  animation: popupSlide 0.4s ease, popupOut 0.5s 4s ease forwards;
+  box-shadow: 0 4px 20px rgba(0,0,0,.5), 0 0 20px rgba(212,175,55,.1);
+  max-width: 220px;
+}
+@keyframes popupSlide { from { transform: translateX(20px); opacity:0; } to { transform:none; opacity:1; } }
+@keyframes popupOut   { to { opacity:0; transform: translateX(10px); } }
+.nft-popup .nicon { font-size: 22px; flex-shrink:0; }
+.nft-popup .ntext { display:flex; flex-direction:column; gap:2px; }
+.nft-popup .ntitle { font-size: 10px; color: #d4af37; font-weight: 700; letter-spacing:.05em; }
+.nft-popup .nsub   { font-size: 9px; color: rgba(255,255,255,.4); line-height:1.5; }
+
+/* ================================================
+   SCREEN LABEL (bottom corner watermark)
+================================================ */
+.screen-label {
+  position: absolute;
+  bottom: 68px; left: 16px;
+  font-size: 9px; letter-spacing: .2em;
+  color: rgba(255,255,255,.15);
+  z-index: 35;
+  pointer-events: none;
+}
+
+/* ================================================
+   MOBILE NOTE
+================================================ */
+.mobile-note {
+  display: none;
+  position: fixed; inset: 0;
+  background: #0b0d14;
+  align-items: center; justify-content: center;
+  flex-direction: column; gap: 12px;
+  color: rgba(255,255,255,.5);
+  font-size: 14px; text-align: center;
+  padding: 24px;
+  z-index: 9999;
+}
+@media (max-width: 480px) {
+  .mobile-note { display: flex; }
+}
+</style>
+</head>
+<body>
+
+<div class="mobile-note">
+  <div style="font-size:32px">🖥️</div>
+  <div>横画面・PCで<br>ご覧ください</div>
+</div>
+
+<div class="screen">
+
+  <!-- =========================================
+       HUD
+  ========================================= -->
+  <div class="hud">
+    <span class="hud-title">ひとの死に方が書いてある本</span>
+    <span class="sep">|</span>
+    <div class="wave-badge">⚠ WAVE 3 侵攻中</div>
+    <span class="timer"><span id="sec">02:18</span></span>
+    <span class="sep">|</span>
+    <div class="barrier-hp">
+      <span class="label">バリケード</span>
+      <div class="barrier-bar"><div class="fill"></div></div>
+      <span>42%</span>
+    </div>
+    <div class="spacer"></div>
+    <div class="hud-resource"><span class="icon">⚡</span><span class="val" id="coins">480</span> ACT</div>
+    <div class="floor-badge">3F 化学準備室</div>
+  </div>
+
+  <!-- =========================================
+       GAME AREA  —  CLASSROOM
+  ========================================= -->
+  <div class="game">
+
+    <!-- walls -->
+    <div class="wall-top"></div>
+    <div class="wall-left"></div>
+    <div class="wall-right"></div>
+    <div class="corridor"></div>
+
+    <!-- windows -->
+    <div class="window w1 cracked"></div>
+    <div class="window w2"></div>
+    <div class="window w3"></div>
+
+    <!-- door -->
+    <div class="door"></div>
+
+    <!-- teacher desk -->
+    <div class="teacher-desk"></div>
+
+    <!-- desk grid -->
+    <div class="desk-area">
+      <!-- row 1 -->
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <!-- row 2 -->
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <!-- row 3 -->
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk barricade"></div>
+      <!-- row 4 -->
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk"></div>
+      <div class="desk barricade2"></div>
+    </div>
+
+    <!-- barricade cluster near door -->
+    <div class="barricade-cluster">
+      <div class="bc-desk"></div>
+      <div class="bc-desk"></div>
+      <div class="bc-desk"></div>
+      <div class="bc-desk"></div>
+    </div>
+    <div class="bc-crack"></div>
+
+    <!-- monsters -->
+    <div class="monster m1">
+      <div class="body"></div>
+      <div class="mhp"><div class="mfill" style="width:65%"></div></div>
+    </div>
+    <div class="monster m2">
+      <div class="body"></div>
+      <div class="mhp"><div class="mfill" style="width:30%"></div></div>
+    </div>
+    <div class="monster m3">
+      <div class="body"></div>
+      <div class="mhp"><div class="mfill" style="width:88%"></div></div>
+    </div>
+    <div class="monster m4">
+      <div class="body"></div>
+      <div class="mhp"><div class="mfill" style="width:52%"></div></div>
+    </div>
+    <div class="monster m5">
+      <div class="body"></div>
+      <div class="mhp"><div class="mfill" style="width:100%"></div></div>
+    </div>
+
+    <!-- claw breaking through -->
+    <div class="monster-claw">🖐</div>
+
+    <!-- skill ring -->
+    <div class="skill-ring"></div>
+
+    <!-- characters -->
+    <div class="char-sprite protagonist">
+      <div class="avatar">主</div>
+      <div class="cname">主人公</div>
+    </div>
+    <div class="char-sprite kisaragi">
+      <div class="avatar">蒼</div>
+      <div class="cname">如月 蒼</div>
+    </div>
+    <div class="char-sprite tachibana">
+      <div class="avatar">花</div>
+      <div class="cname">橘 花音</div>
+    </div>
+    <div class="char-sprite hinata">
+      <div class="avatar">玲</div>
+      <div class="cname">日向 玲</div>
+    </div>
+    <div class="char-sprite minegishi">
+      <div class="avatar">徹</div>
+      <div class="cname">峰岸 徹</div>
+    </div>
+
+    <!-- skill lightning effect -->
+    <div class="skill-aura lightning"></div>
+
+    <!-- floating damage -->
+    <div class="dmg d1">−128</div>
+    <div class="dmg d2">−84</div>
+    <div class="dmg d3 red">MISS</div>
+
+    <!-- book ambience -->
+    <div class="book-glow">📖 死の本が反応している…</div>
+
+    <!-- wave alert overlay -->
+    <div class="wave-flash">
+      <div class="wave-flash-text">WAVE 3</div>
+    </div>
+
+    <!-- watermark -->
+    <div class="screen-label">GAMEPLAY MOCKUP — ひとの死に方が書いてある本</div>
+
+  </div>
+
+  <!-- =========================================
+       SIDE PANEL
+  ========================================= -->
+  <div class="side">
+    <div class="side-section">
+      <div class="side-label">Wave</div>
+      <div class="wave-list">
+        <div class="wave-item">
+          <div class="wave-dot done"></div>
+          <span class="wlabel done">Wave 1 — 小型群れ</span>
+        </div>
+        <div class="wave-item">
+          <div class="wave-dot done"></div>
+          <span class="wlabel done">Wave 2 — 突進型</span>
+        </div>
+        <div class="wave-item">
+          <div class="wave-dot now"></div>
+          <span class="wlabel now">▶ Wave 3 — 侵攻中</span>
+        </div>
+        <div class="wave-item">
+          <div class="wave-dot"></div>
+          <span class="wlabel">Wave 4 — ???</span>
+        </div>
+        <div class="wave-item">
+          <div class="wave-dot"></div>
+          <span class="wlabel">Wave 5 — BOSS</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="book-btn">
+        <div class="bpulse"></div>
+        <span class="bicon">📖</span>
+        <div class="btitle">死　の　本</div>
+        <div class="bsub">玲の誘惑度が上昇中…</div>
+      </div>
+    </div>
+
+    <div class="side-section">
+      <div class="side-label">Log</div>
+      <div class="event-log">
+        <div class="event-item blue">如月が電撃アクト発動</div>
+        <div class="event-item red">バリケード耐久 −18</div>
+        <div class="event-item gold">⚠ 日向の誘惑度 78</div>
+        <div class="event-item red">怪物が扉を突破しようとしている</div>
+        <div class="event-item gray">ACT +30 獲得</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================
+       CHARACTER BAR
+  ========================================= -->
+  <div class="chars">
+
+    <!-- 主人公 -->
+    <div class="char-card c-protagonist active">
+      <div class="cc-portrait">主</div>
+      <div class="cc-info">
+        <div class="cc-name">主人公</div>
+        <div class="cc-role">予知・記録型</div>
+        <div class="stat-row">
+          <span class="stat-label">HP</span>
+          <div class="stat-bar"><div class="fill hp" style="width:78%"></div></div>
+          <span class="stat-val">78</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">誘惑</span>
+          <div class="stat-bar"><div class="fill temp" style="width:12%"></div></div>
+          <span class="stat-val">12</span>
+        </div>
+        <div class="cc-statuses">
+          <span class="st-icon act">ACT↑</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 如月 -->
+    <div class="char-card c-kisaragi">
+      <div class="cc-portrait">蒼</div>
+      <div class="cc-info">
+        <div class="cc-name">如月 蒼</div>
+        <div class="cc-role">電撃・範囲</div>
+        <div class="stat-row">
+          <span class="stat-label">HP</span>
+          <div class="stat-bar"><div class="fill hp" style="width:55%"></div></div>
+          <span class="stat-val">55</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">誘惑</span>
+          <div class="stat-bar"><div class="fill temp" style="width:35%"></div></div>
+          <span class="stat-val">35</span>
+        </div>
+        <div class="cc-statuses">
+          <span class="st-icon act">発動中</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 橘 -->
+    <div class="char-card c-tachibana">
+      <div class="cc-portrait">花</div>
+      <div class="cc-info">
+        <div class="cc-name">橘 花音</div>
+        <div class="cc-role">回復・シールド</div>
+        <div class="stat-row">
+          <span class="stat-label">HP</span>
+          <div class="stat-bar"><div class="fill hp" style="width:91%"></div></div>
+          <span class="stat-val">91</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">誘惑</span>
+          <div class="stat-bar"><div class="fill temp" style="width:22%"></div></div>
+          <span class="stat-val">22</span>
+        </div>
+        <div class="cc-statuses">
+          <span class="st-icon hp+">HP+</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 日向  ← WARNING -->
+    <div class="char-card c-hinata warning">
+      <span class="warn-badge">⚠</span>
+      <div class="cc-portrait">玲</div>
+      <div class="cc-info">
+        <div class="cc-name">日向 玲</div>
+        <div class="cc-role">火炎・爆発</div>
+        <div class="stat-row">
+          <span class="stat-label">HP</span>
+          <div class="stat-bar"><div class="fill hp" style="width:43%"></div></div>
+          <span class="stat-val">43</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">誘惑</span>
+          <div class="stat-bar"><div class="fill temp" style="width:78%"></div></div>
+          <span class="stat-val" style="color:#e74c3c;font-weight:700">78!</span>
+        </div>
+        <div class="cc-statuses">
+          <span class="st-icon fear">恐怖状態</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 峰岸 -->
+    <div class="char-card c-minegishi">
+      <div class="cc-portrait">徹</div>
+      <div class="cc-info">
+        <div class="cc-name">峰岸 徹</div>
+        <div class="cc-role">物理強化</div>
+        <div class="stat-row">
+          <span class="stat-label">HP</span>
+          <div class="stat-bar"><div class="fill hp" style="width:66%"></div></div>
+          <span class="stat-val">66</span>
+        </div>
+        <div class="stat-row">
+          <span class="stat-label">誘惑</span>
+          <div class="stat-bar"><div class="fill temp" style="width:48%"></div></div>
+          <span class="stat-val">48</span>
+        </div>
+        <div class="cc-statuses">
+          <span class="st-icon act">待機</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- =========================================
+       SKILL BAR
+  ========================================= -->
+  <div class="skills">
+
+    <div class="skill-slot active" title="電撃アクト">
+      ⚡
+      <span class="hotkey">1</span>
+    </div>
+    <div class="skill-label">
+      <span class="sl-name">電撃アクト</span>
+      <span class="sl-sub">範囲攻撃 / 60 ACT</span>
+    </div>
+
+    <div class="skill-slot" title="バリケード強化">
+      🛡
+      <span class="hotkey">2</span>
+    </div>
+
+    <div class="skill-slot cooldown" title="火炎瓶（CT中）">
+      🔥
+      <div class="cd-overlay">8s</div>
+      <span class="hotkey">3</span>
+    </div>
+
+    <div class="skill-slot" title="回復アクト">
+      💊
+      <span class="hotkey">4</span>
+    </div>
+
+    <div class="skill-slot cooldown" title="予知（CT中）">
+      👁
+      <div class="cd-overlay">22s</div>
+      <span class="hotkey">5</span>
+    </div>
+
+    <div class="skill-slot" title="緊急退避">
+      🚪
+      <span class="hotkey">6</span>
+    </div>
+
+    <div class="skills-sep"></div>
+
+    <div class="book-btn-bar">📖 死の本を開く</div>
+    <div class="act-btn">⚔ 叛徒バトル</div>
+
+  </div>
+
+  <!-- =========================================
+       NFT POPUP
+  ========================================= -->
+  <div class="nft-popup">
+    <span class="nicon">🏆</span>
+    <div class="ntext">
+      <div class="ntitle">NFT 取得可能</div>
+      <div class="nsub">橘 花音を生存させると<br>唯一のNFTが発行されます</div>
+    </div>
+  </div>
+
+</div><!-- /screen -->
+
+<script>
+// ── countdown timer ──
+const secEl = document.getElementById('sec');
+let t = 138; // 2:18
+setInterval(() => {
+  if (t <= 0) { t = 138; return; }
+  t--;
+  const m = String(Math.floor(t / 60)).padStart(2,'0');
+  const s = String(t % 60).padStart(2,'0');
+  secEl.textContent = m + ':' + s;
+}, 1000);
+
+// ── ACT coin drift ──
+const coinsEl = document.getElementById('coins');
+let coins = 480;
+setInterval(() => {
+  if (Math.random() < .3) {
+    coins = Math.max(0, coins - Math.floor(Math.random() * 15));
+    coinsEl.textContent = coins;
+  }
+}, 2200);
+
+// ── 誘惑度 bar flicker on hinata ──
+const hinataTempt = document.querySelector('.char-card.c-hinata .fill.temp');
+let hv = 78;
+setInterval(() => {
+  hv = Math.min(100, hv + (Math.random() < .4 ? 1 : 0));
+  hinataTempt.style.width = hv + '%';
+  if (hv >= 100) {
+    hinataTempt.style.background = '#e74c3c';
+  }
+}, 1500);
+
+// ── re-trigger wave flash every 12s ──
+const flashEl = document.querySelector('.wave-flash');
+setInterval(() => {
+  flashEl.style.animation = 'none';
+  void flashEl.offsetWidth;
+  flashEl.style.animation = 'flashIn 3s ease forwards';
+}, 12000);
+</script>
+
+</body>
+</html>

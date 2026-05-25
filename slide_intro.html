@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ひとの死に方が書いてある本 — 企画紹介スライド</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700;900&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+
+  :root {
+    --bg:        #07080f;
+    --panel:     #0d0e1a;
+    --accent1:   #c0392b;   /* 血の赤 */
+    --accent2:   #1a6fa8;   /* 冷たい青 */
+    --glow:      #4fc3f7;   /* ネオンブルー */
+    --text:      #e8e8e8;
+    --muted:     #7a8090;
+    --gold:      #d4af37;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    width: 100vw;
+    user-select: none;
+  }
+
+  /* ========= SLIDE CONTAINER ========= */
+  .deck {
+    width: 100%;
+    height: 100vh;
+    position: relative;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 80px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .6s ease, transform .6s ease;
+    transform: translateX(60px);
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(0);
+  }
+  .slide.exit {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  /* ========= BACKGROUND NOISE OVERLAY ========= */
+  .deck::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 100;
+  }
+
+  /* ========= NAV ========= */
+  .nav {
+    position: fixed;
+    bottom: 36px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    z-index: 200;
+  }
+  .nav button {
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.15);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-size: 13px;
+    padding: 8px 24px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background .2s, border-color .2s;
+    letter-spacing: .05em;
+  }
+  .nav button:hover { background: rgba(255,255,255,.14); border-color: var(--glow); }
+  .nav .counter {
+    color: var(--muted);
+    font-size: 12px;
+    min-width: 50px;
+    text-align: center;
+    letter-spacing: .1em;
+  }
+
+  /* ========= DOTS ========= */
+  .dots {
+    position: fixed;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 200;
+  }
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--muted);
+    cursor: pointer;
+    transition: background .3s, transform .3s;
+  }
+  .dot.active { background: var(--glow); transform: scale(1.6); }
+
+  /* ========= SLIDE NUMBER ========= */
+  .slide-num {
+    position: fixed;
+    top: 28px;
+    right: 48px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .15em;
+    z-index: 200;
+  }
+
+  /* ====================================================
+     SLIDE 1 — TITLE
+  ==================================================== */
+  #s1 {
+    background:
+      radial-gradient(ellipse 70% 60% at 50% 40%, #1a0a0a 0%, transparent 70%),
+      linear-gradient(160deg, #07080f 60%, #0f0510 100%);
+    text-align: center;
+    gap: 0;
+  }
+
+  .s1-eyebrow {
+    font-size: 11px;
+    letter-spacing: .4em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 28px;
+    opacity: .85;
+  }
+
+  .s1-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(36px, 5.5vw, 70px);
+    font-weight: 900;
+    line-height: 1.2;
+    color: #fff;
+    text-shadow:
+      0 0 40px rgba(192,57,43,.6),
+      0 0 80px rgba(192,57,43,.25);
+    margin-bottom: 12px;
+    position: relative;
+  }
+
+  .s1-title::after {
+    content: '';
+    display: block;
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent1), transparent);
+    margin: 22px auto 0;
+  }
+
+  .s1-sub {
+    font-size: 14px;
+    color: var(--glow);
+    letter-spacing: .2em;
+    margin-top: 24px;
+    opacity: .8;
+  }
+
+  .s1-genre-bar {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 40px;
+    flex-wrap: wrap;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 5px 16px;
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 999px;
+    color: var(--muted);
+    letter-spacing: .12em;
+  }
+
+  .s1-dev {
+    position: absolute;
+    bottom: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .2em;
+    white-space: nowrap;
+  }
+
+  /* ====================================================
+     SLIDE 1 — IMAGE SPLIT LAYOUT
+  ==================================================== */
+  #s1 {
+    flex-direction: row !important;
+    align-items: center !important;
+    text-align: left !important;
+    gap: 60px !important;
+    padding: 60px 80px !important;
+  }
+  .s1-book-wrap {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+  }
+  .s1-book-img {
+    max-height: 72vh;
+    width: auto;
+    border-radius: 6px;
+    box-shadow:
+      0 0 50px rgba(192,57,43,.5),
+      0 0 100px rgba(192,57,43,.2),
+      0 30px 80px rgba(0,0,0,.9);
+    animation: bookFloat 4s ease-in-out infinite;
+  }
+  @keyframes bookFloat {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-10px); }
+  }
+  .s1-text-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 24px;
+  }
+  #s1 .s1-title { text-align: left; }
+  #s1 .s1-title::after { margin: 22px 0 0; }
+  #s1 .s1-sub   { text-align: left; margin-top: 0; }
+  #s1 .s1-genre-bar { justify-content: flex-start; margin-top: 0; }
+
+  /* ====================================================
+     SLIDE 3 — STORY + IMAGE
+  ==================================================== */
+  .story-img-wrap {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,.08);
+    row-span: 2;
+  }
+  .story-img-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    opacity: .88;
+  }
+  .story-img-wrap::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(7,8,15,.4) 0%,
+      transparent 50%,
+      rgba(192,57,43,.08) 100%
+    );
+    pointer-events: none;
+  }
+  .story-grid-new {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: auto auto auto;
+    gap: 18px 28px;
+    width: 100%;
+    max-width: 960px;
+  }
+  .story-grid-new .story-block    { grid-column: 1; }
+  .story-grid-new .story-img-wrap { grid-column: 2; grid-row: 1 / 3; }
+  .story-grid-new .announce-box   { grid-column: 1; }
+  .story-grid-new .kw-label       { grid-column: 1 / -1; }
+  .story-grid-new .keyword-row    { grid-column: 1 / -1; }
+
+  /* ====================================================
+     SLIDE — CHARACTER  (新スライド)
+  ==================================================== */
+  #s-char {
+    background:
+      radial-gradient(ellipse 40% 80% at 30% 50%, rgba(79,195,247,.04) 0%, transparent 60%),
+      var(--bg);
+    flex-direction: row !important;
+    align-items: stretch !important;
+    gap: 0 !important;
+    padding: 0 !important;
+  }
+  .char-img-panel {
+    flex: 0 0 38%;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #08090f 0%, #0d1020 100%);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    border-right: 1px solid rgba(255,255,255,.06);
+  }
+  .char-img-panel img {
+    height: 92%;
+    width: auto;
+    object-fit: contain;
+    object-position: bottom;
+    filter: drop-shadow(0 0 24px rgba(79,195,247,.25));
+  }
+  .char-img-panel::before {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(to top, rgba(8,9,15,.9), transparent);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .char-info-panel {
+    flex: 1;
+    padding: 60px 50px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 28px;
+  }
+  .char-name-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .char-name-jp {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 4vw, 48px);
+    font-weight: 900;
+    color: #fff;
+  }
+  .char-name-en {
+    font-size: 11px;
+    letter-spacing: .4em;
+    color: var(--glow);
+    text-transform: uppercase;
+  }
+  .char-divider {
+    width: 60px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--glow), transparent);
+  }
+  .char-stat-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .char-stat-row {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .csr-label {
+    font-size: 10px;
+    letter-spacing: .25em;
+    color: var(--muted);
+    text-transform: uppercase;
+    width: 80px;
+    flex-shrink: 0;
+  }
+  .csr-val {
+    font-size: 13px;
+    color: var(--text);
+  }
+  .csr-bar-wrap {
+    flex: 1;
+    height: 4px;
+    background: rgba(255,255,255,.08);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .csr-bar { height: 100%; border-radius: 2px; }
+  .csr-bar.act   { background: var(--glow);    }
+  .csr-bar.tempt { background: var(--accent1); }
+  .csr-bar.spd   { background: var(--gold);    }
+  .char-quote {
+    font-size: 13px;
+    color: #9aa0b0;
+    line-height: 1.9;
+    border-left: 2px solid rgba(79,195,247,.3);
+    padding-left: 16px;
+    font-style: italic;
+  }
+  .char-act-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(79,195,247,.08);
+    border: 1px solid rgba(79,195,247,.25);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 12px;
+    color: var(--glow);
+    align-self: flex-start;
+  }
+  .char-act-badge .act-icon { font-size: 20px; }
+
+  /* ====================================================
+     SLIDE 2 — CONCEPT
+  ==================================================== */
+  #s2 {
+    background: var(--bg);
+    gap: 40px;
+  }
+
+  .section-label {
+    font-size: 10px;
+    letter-spacing: .5em;
+    color: var(--accent1);
+    text-transform: uppercase;
+    align-self: flex-start;
+  }
+
+  .s2-catch {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(18px, 2.5vw, 30px);
+    font-weight: 700;
+    line-height: 1.8;
+    border-left: 3px solid var(--accent1);
+    padding-left: 24px;
+    max-width: 800px;
+  }
+
+  .s2-catch em {
+    font-style: normal;
+    color: var(--accent1);
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 900px;
+    margin-top: 8px;
+  }
+  .pillar {
+    background: var(--panel);
+    border: 1px solid rgba(255,255,255,.07);
+    border-radius: 12px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    position: relative;
+    overflow: hidden;
+  }
+  .pillar::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+  }
+  .pillar.red::before   { background: var(--accent1); }
+  .pillar.blue::before  { background: var(--accent2); }
+  .pillar.gold::before  { background: var(--gold); }
+
+  .pillar-icon { font-size: 24px; }
+  .pillar-ttl  { font-size: 14px; font-weight: 700; }
+  .pillar-desc { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  /* ====================================================
+     SLIDE 3 — STORY
+  ==================================================== */
+  #s3 {
+    background:
+      radial-gradient(ellipse 50% 70% at 80% 50%, rgba(26,111,168,.08) 0%, transparent 60%),
+      var(--bg);
+    gap: 36px;
+    align-items: flex-start;
+  }
+
+  .story-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    width: 100%;
+    max-width: 960px;
+  }
+
+  .story-block h3 {
+    font-size: 11px;
+    letter-spacing: .35em;
+    color: var(--glow);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .story-block p {
+    font-size: 13.5px;
+    line-height: 2;
+    color: #c8ccd8;
+  }
+
+  .announce-box {
+    background: rgba(192,57,43,.08);
+    border: 1px solid rgba(192,57,43,.3);
+    border-radius: 8px;
+    padding: 18px 22px;
+    font-size: 13px;
+    line-height: 1.9;
+    color: #e8b4b0;
+    font-style: italic;
+    grid-column: 1 / -1;
+  }
+
+  .kw-label {
+    grid-column: 1 / -1;
+    font-size: 9px;
+    letter-spacing: .5em;
+    color: var(--glow);
+    text-transform: uppercase;
+    opacity: .6;
+    margin-bottom: -8px;
+  }
+
+  .keyword-row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    grid-column: 1 / -1;
+  }
+  .kw {
+    background: rgba(79,195,247,.07);
+    border: 1px solid rgba(79,195,247,.2);
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 12px;
+    color: var(--glow);
+  }
+  .kw span { color: var(--muted); font-size: 11px; display: block; margin-top: 3px; }
+
+  /* ====================================================
+     SLIDE 4 — SYSTEMS
+  ==================================================== */
+  #s4 {
+    background: var(--bg);
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .slide-h2 {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(22px, 3vw, 36px);
+    font-weight: 700;
+  }
+
+  .sys-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
+  }
+
+  .sys-card {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 24px 22px;
+    border: 1px solid rgba(255,255,255,.06);
+  }
+  .sys-card h3 {
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .sys-card h3 .badge {
+    background: var(--accent1);
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    letter-spacing: .05em;
+    font-weight: 400;
+  }
+  .sys-card h3 .badge.blue { background: var(--accent2); }
+
+  .sys-card ul {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .sys-card ul li {
+    font-size: 12.5px;
+    color: #aab0be;
+    padding-left: 14px;
+    position: relative;
+    line-height: 1.6;
+  }
+  .sys-card ul li::before {
+    content: '›';
+    position: absolute;
+    left: 0;
+    color: var(--accent1);
+  }
+
+  .flow-box {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 22px 24px;
+    border: 1px solid rgba(255,255,255,.06);
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+  .flow-step {
+    font-size: 12px;
+    padding: 6px 16px;
+    background: rgba(255,255,255,.04);
+    border-radius: 6px;
+    white-space: nowrap;
+  }
+  .flow-arr {
+    font-size: 16px;
+    color: var(--muted);
+    padding: 0 6px;
+  }
+
+  /* ====================================================
+     SLIDE 5 — NFT / BLOCKCHAIN
+  ==================================================== */
+  #s5 {
+    background:
+      radial-gradient(ellipse 60% 50% at 50% 50%, rgba(212,175,55,.05) 0%, transparent 70%),
+      var(--bg);
+    gap: 32px;
+    align-items: flex-start;
+  }
+
+  .nft-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px;
+    width: 100%;
+    max-width: 960px;
+  }
+
+  .nft-card {
+    background: var(--panel);
+    border: 1px solid rgba(212,175,55,.15);
+    border-radius: 12px;
+    padding: 22px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .nft-card .num {
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: .2em;
+    font-weight: 700;
+  }
+  .nft-card h3 { font-size: 14px; font-weight: 700; }
+  .nft-card p  { font-size: 12px; color: var(--muted); line-height: 1.7; }
+
+  .ethics-bar {
+    width: 100%;
+    max-width: 960px;
+    background: rgba(255,255,255,.03);
+    border: 1px solid rgba(79,195,247,.15);
+    border-radius: 8px;
+    padding: 14px 22px;
+    font-size: 12px;
+    color: var(--glow);
+    line-height: 1.7;
+    grid-column: 1 / -1;
+  }
+
+  /* ====================================================
+     SLIDE 6 — DEV INFO
+  ==================================================== */
+  #s6 {
+    background: var(--bg);
+    gap: 36px;
+  }
+
+  .dev-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 100%;
+    max-width: 960px;
+  }
+
+  .dev-card {
+    background: var(--panel);
+    border-radius: 12px;
+    padding: 28px 22px;
+    border: 1px solid rgba(255,255,255,.06);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+  }
+  .dev-card .icon { font-size: 32px; }
+  .dev-card .label { font-size: 10px; letter-spacing: .3em; color: var(--muted); text-transform: uppercase; }
+  .dev-card .value { font-size: 20px; font-weight: 700; color: #fff; }
+  .dev-card .sub   { font-size: 11px; color: var(--muted); line-height: 1.6; }
+
+  .timeline {
+    display: flex;
+    width: 100%;
+    max-width: 900px;
+    gap: 0;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 0; right: 0;
+    height: 1px;
+    background: rgba(255,255,255,.1);
+  }
+  .tl-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    position: relative;
+  }
+  .tl-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--accent1);
+    border: 2px solid var(--bg);
+    z-index: 1;
+  }
+  .tl-item:nth-child(2) .tl-dot { background: var(--accent2); }
+  .tl-item:nth-child(3) .tl-dot { background: var(--glow); }
+  .tl-item:nth-child(4) .tl-dot { background: var(--gold); }
+
+  .tl-time { font-size: 11px; color: var(--muted); }
+  .tl-name { font-size: 12px; font-weight: 700; text-align: center; }
+  .tl-desc { font-size: 10px; color: var(--muted); text-align: center; line-height: 1.5; }
+
+  .s6-footer {
+    font-size: 13px;
+    color: var(--muted);
+    text-align: center;
+    margin-top: 8px;
+  }
+  .s6-footer a { color: var(--glow); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div class="deck">
+
+  <!-- ==================== SLIDE 1 ==================== -->
+  <div class="slide active" id="s1">
+
+    <!-- 左：本の画像 -->
+    <div class="s1-book-wrap">
+      <img class="s1-book-img" src="img_logo_book.png" alt="ひとの死に方が書いてある本">
+    </div>
+
+    <!-- 右：テキスト -->
+    <div class="s1-text-wrap">
+      <div class="s1-eyebrow">GAME PITCH DECK — 2026</div>
+      <h1 class="s1-title">ひとの死に方が<br>書いてある本</h1>
+      <div class="s1-sub">THE BOOK OF DEATHS</div>
+      <div class="s1-genre-bar">
+        <span class="tag">タワーディフェンス</span>
+        <span class="tag">×</span>
+        <span class="tag">サスペンス RPG</span>
+        <span class="tag">×</span>
+        <span class="tag">NFT / ブロックチェーン</span>
+      </div>
+    </div>
+
+    <div class="s1-dev">Solo Developer — YOSHI &nbsp;|&nbsp; Presented to SHUEISHA GAMES</div>
+  </div>
+
+  <!-- ==================== SLIDE 2 ==================== -->
+  <div class="slide" id="s2">
+    <span class="section-label">Concept</span>
+
+    <p class="s2-catch">
+      死に魅了された仲間が裏切るかもしれない。<br>
+      守るべき<em>教室</em>か、信じるべき<em>友</em>か——<br>
+      選択が生死を分ける。
+    </p>
+
+    <div class="pillars">
+      <div class="pillar red">
+        <span class="pillar-icon">🎭</span>
+        <div class="pillar-ttl">人間ドラマ</div>
+        <div class="pillar-desc">「死への誘惑度」パラメータで仲間が闇落ちするリスクが常に存在。心理サスペンスがゲームプレイに直結する。</div>
+      </div>
+      <div class="pillar blue">
+        <span class="pillar-icon">🏰</span>
+        <div class="pillar-ttl">タワーディフェンス</div>
+        <div class="pillar-desc">教室ごとに異なる地形・侵入経路。バリケードとアクトスキルを組み合わせた戦略的防衛が核心。</div>
+      </div>
+      <div class="pillar gold">
+        <span class="pillar-icon">⛓️</span>
+        <div class="pillar-ttl">NFT 経済圏</div>
+        <div class="pillar-desc">救出したキャラに唯一のNFTが発行。仮想通貨で防衛素材を購入。他プレイヤーへのレイドでNFT奪い合い。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 3 ==================== -->
+  <div class="slide" id="s3">
+    <span class="section-label">Story</span>
+    <h2 class="slide-h2">閉ざされた校舎、迫り来る怪物、そして——</h2>
+
+    <div class="story-grid-new">
+
+      <!-- 左上：Setting テキスト -->
+      <div class="story-block">
+        <h3>Setting</h3>
+        <p>気づくと教室で目が覚めた。いつの間にか夜になっていた。廊下には怪物の群れが押し寄せ、外へ出れば即死。唯一の脱出口は——<strong>屋上</strong>。</p>
+      </div>
+
+      <!-- 右：教室シーン画像（2行分） -->
+      <div class="story-img-wrap">
+        <img src="img_scene_classroom.png" alt="教室シーン">
+      </div>
+
+      <!-- 左下：アナウンス -->
+      <div class="announce-box">
+        「校舎の各教室に生存者がいることを確認。外への脱出は死を意味します。<br>
+        生存を望む者は屋上を目指してください。」
+      </div>
+
+      <!-- フル幅：キーワード -->
+      <div class="kw-label">KEYWORD</div>
+      <div class="keyword-row">
+        <div class="kw">アクト<span>校舎内で発現する超常能力</span></div>
+        <div class="kw">死の本<span>全員の死因が記された書</span></div>
+        <div class="kw">加護<span>教室内の怪物侵攻を防ぐ結界</span></div>
+        <div class="kw">闇落ち<span>誘惑度100で仲間が敵化</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 4 ==================== -->
+  <div class="slide" id="s4">
+    <span class="section-label">Game Systems</span>
+    <h2 class="slide-h2">2つのパートが絡み合う設計</h2>
+
+    <div class="sys-grid">
+      <div class="sys-card">
+        <h3>🏰 タワーディフェンスパート <span class="badge">DEFENSE</span></h3>
+        <ul>
+          <li>教室を1ステージとし、廊下・窓・扉から怪物が侵攻</li>
+          <li>机・ロッカーでバリケード、アクトスキルで撃退</li>
+          <li>教室固有ギミック（理科室：薬品トラップ / 体育館：広大で難易度高）</li>
+          <li>小型雑魚 → エリート → ボスの3段階ウェーブ構成</li>
+        </ul>
+      </div>
+
+      <div class="sys-card">
+        <h3>🎭 仲間管理パート <span class="badge blue">SUSPENSE</span></h3>
+        <ul>
+          <li>仲間ごとに隠しパラメータ「死への誘惑度 0〜100」が存在</li>
+          <li>仲間の死亡目撃・食料不足・孤立で誘惑度が上昇</li>
+          <li>誘惑度100で「闇落ち」→ 1対1のターン制バトルに突入</li>
+          <li>「死の本」の先読みと会話で裏切りを未然に防ぐ</li>
+        </ul>
+      </div>
+
+      <div class="flow-box">
+        <span class="flow-step">コミュニケーション</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">防衛準備</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">ウェーブ防衛</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">移動判断</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">（繰り返し）屋上へ</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 5 — CHARACTER ==================== -->
+  <div class="slide" id="s-char">
+
+    <!-- 左：キャラクター立ち絵 -->
+    <div class="char-img-panel">
+      <img src="img_char_kisaragi.png" alt="如月 蒼">
+    </div>
+
+    <!-- 右：キャラクター情報 -->
+    <div class="char-info-panel">
+      <span class="section-label">Character</span>
+
+      <div class="char-name-block">
+        <div class="char-name-en">KISARAGI AO — No.01</div>
+        <div class="char-name-jp">如月 蒼</div>
+        <div class="char-divider"></div>
+      </div>
+
+      <div class="char-stat-list">
+        <div class="char-stat-row">
+          <span class="csr-label">Age</span>
+          <span class="csr-val">17歳　男</span>
+        </div>
+        <div class="char-stat-row">
+          <span class="csr-label">Role</span>
+          <span class="csr-val">冷静な幼馴染。表向きは頼れる存在</span>
+        </div>
+        <div class="char-stat-row">
+          <span class="csr-label">ACT 力</span>
+          <div class="csr-bar-wrap"><div class="csr-bar act" style="width:85%"></div></div>
+        </div>
+        <div class="char-stat-row">
+          <span class="csr-label">誘惑リスク</span>
+          <div class="csr-bar-wrap"><div class="csr-bar tempt" style="width:40%"></div></div>
+        </div>
+        <div class="char-stat-row">
+          <span class="csr-label">行動速度</span>
+          <div class="csr-bar-wrap"><div class="csr-bar spd" style="width:72%"></div></div>
+        </div>
+      </div>
+
+      <div class="char-act-badge">
+        <span class="act-icon">⚡</span>
+        ACT能力：電撃系・広範囲攻撃。理性が崩れると誘惑度が急上昇する。
+      </div>
+
+      <p class="char-quote">
+        「感情で動くな。この状況を生き残るには、頭を使うしかない。」<br>
+        ——　その冷静さの裏に、何かを隠している。
+      </p>
+    </div>
+
+  </div>
+
+  <!-- ==================== SLIDE 6 — NFT ==================== -->
+  <div class="slide" id="s5">
+    <span class="section-label">Blockchain / NFT</span>
+    <h2 class="slide-h2">ゲームの成果が「資産」になる</h2>
+
+    <div class="nft-grid">
+      <div class="nft-card">
+        <span class="num">01</span>
+        <h3>🏆 キャラクター NFT</h3>
+        <p>屋上まで生存させたキャラ1人ごとに世界唯一のNFTが発行。そのキャラの「生存の物語」がチェーンに刻まれ、OpenSea等で売買可能。</p>
+      </div>
+      <div class="nft-card">
+        <span class="num">02</span>
+        <h3>🪙 アクトコイン</h3>
+        <p>ゲーム内仮想通貨。プレイで獲得 or 法定通貨・仮想通貨で購入。強化バリケード・回復薬・誘惑度低下アイテムなどに使用。</p>
+      </div>
+      <div class="nft-card">
+        <span class="num">03</span>
+        <h3>⚔️ レイドモード</h3>
+        <p>オンラインで他プレイヤーの防衛教室に侵攻。撃破で防衛素材を略奪、またはNFTを賭けた対戦が可能。</p>
+      </div>
+      <div class="nft-card">
+        <span class="num">04</span>
+        <h3>👑 完全生存 NFT</h3>
+        <p>全キャラを闇落ちさせず屋上クリアした場合のみ発行される最レア枠。稀少性が「完璧なプレイ」の動機を強化。</p>
+      </div>
+    </div>
+
+    <div class="ethics-bar">
+      ✦ 倫理設計：メインストーリーは無課金でフルクリア可能。NFT・課金要素はあくまで「ゲームを楽しんだ結果として得られる報酬」として設計。
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 7 — DEVELOPMENT ==================== -->
+  <div class="slide" id="s6">
+    <span class="section-label">Development</span>
+    <h2 class="slide-h2" style="margin-bottom:4px;">ソロ開発 — YOSHI</h2>
+
+    <div class="dev-grid">
+      <div class="dev-card">
+        <span class="icon">👤</span>
+        <span class="label">Team</span>
+        <span class="value">Solo</span>
+        <span class="sub">YOSHI がディレクション・<br>プログラム・BC開発を担当<br>アート・音楽は外注</span>
+      </div>
+      <div class="dev-card">
+        <span class="icon">📅</span>
+        <span class="label">Schedule</span>
+        <span class="value">24ヶ月</span>
+        <span class="sub">プロトタイプ → 試遊版<br>→ ベータ → マスター<br>の4フェーズ構成</span>
+      </div>
+      <div class="dev-card">
+        <span class="icon">💴</span>
+        <span class="label">Budget</span>
+        <span class="value">〜256万円</span>
+        <span class="sub">プログラム・BC開発は自担当<br>主な外注費はアート・音楽<br>（BASE / SOLANA 採用）</span>
+      </div>
+    </div>
+
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-time">〜6ヶ月目</div>
+        <div class="tl-name">Prototype</div>
+        <div class="tl-desc">コアパート実装<br>審査提出</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-time">〜12ヶ月目</div>
+        <div class="tl-name">Trial Ver.</div>
+        <div class="tl-desc">1〜3章 + NFTβ<br>ユーザーテスト</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-time">〜20ヶ月目</div>
+        <div class="tl-name">Beta</div>
+        <div class="tl-desc">全章 + レイド<br>マーケット連携</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-dot"></div>
+        <div class="tl-time">〜24ヶ月目</div>
+        <div class="tl-name">Release</div>
+        <div class="tl-desc">Steam / App Store<br>英語ローカライズ</div>
+      </div>
+    </div>
+
+    <p class="s6-footer">Contact : <a href="mailto:blightlight837@gmail.com">blightlight837@gmail.com</a></p>
+  </div>
+
+</div><!-- /deck -->
+
+<!-- NAV -->
+<div class="nav">
+  <button id="prev">← Prev</button>
+  <span class="counter" id="counter">1 / 6</span>
+  <button id="next">Next →</button>
+</div>
+
+<!-- DOTS -->
+<div class="dots" id="dots"></div>
+
+<!-- SLIDE NUMBER -->
+<span class="slide-num" id="slideNum">01 / 06</span>
+
+<script>
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  const total  = slides.length;
+  let current  = 0;
+
+  const counter  = document.getElementById('counter');
+  const slideNum = document.getElementById('slideNum');
+  const dotsEl   = document.getElementById('dots');
+
+  // Build dots
+  slides.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === 0 ? ' active' : '');
+    d.addEventListener('click', () => goTo(i));
+    dotsEl.appendChild(d);
+  });
+
+  function pad(n) { return String(n + 1).padStart(2, '0'); }
+
+  function goTo(idx) {
+    slides[current].classList.remove('active');
+    slides[current].classList.add('exit');
+    setTimeout(() => slides[current].classList.remove('exit'), 600);
+
+    current = (idx + total) % total;
+    slides[current].classList.add('active');
+
+    // Update UI
+    counter.textContent  = `${current + 1} / ${total}`;
+    slideNum.textContent = `${pad(current)} / ${pad(total - 1)}`;
+    document.querySelectorAll('.dot').forEach((d, i) =>
+      d.classList.toggle('active', i === current));
+  }
+
+  document.getElementById('next').addEventListener('click', () => goTo(current + 1));
+  document.getElementById('prev').addEventListener('click', () => goTo(current - 1));
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  goTo(current + 1);
+    if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')    goTo(current - 1);
+  });
+</script>
+</body>
+</html>
