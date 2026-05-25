@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>企画書 — ひとの死に方が書いてある本</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+
+  :root {
+    --bg:     #07080f;
+    --panel:  #0d0f1c;
+    --border: rgba(255,255,255,.08);
+    --red:    #c0392b;
+    --blue:   #4fc3f7;
+    --gold:   #d4af37;
+    --text:   #dde0ea;
+    --muted:  #6a7080;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', sans-serif;
+    font-weight: 300;
+    line-height: 1.9;
+    font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    background: rgba(0,0,0,.7);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+  .site-header .logo {
+    font-size: 12px;
+    letter-spacing: .3em;
+    color: var(--red);
+    font-weight: 700;
+  }
+  .site-header .meta {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: .1em;
+  }
+
+  /* ── HERO ── */
+  .hero {
+    padding: 80px 40px 60px;
+    max-width: 860px;
+    margin: 0 auto;
+    border-bottom: 1px solid var(--border);
+  }
+  .hero-label {
+    font-size: 10px;
+    letter-spacing: .5em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+  .hero-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(28px, 5vw, 52px);
+    font-weight: 700;
+    line-height: 1.3;
+    color: #fff;
+    text-shadow: 0 0 40px rgba(192,57,43,.4);
+    margin-bottom: 32px;
+  }
+  .hero-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+  .tag {
+    font-size: 11px;
+    padding: 4px 14px;
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    color: var(--muted);
+    letter-spacing: .1em;
+  }
+  .tag.red  { border-color: rgba(192,57,43,.4); color: #e57070; }
+  .tag.blue { border-color: rgba(79,195,247,.3); color: var(--blue); }
+  .tag.gold { border-color: rgba(212,175,55,.3); color: var(--gold); }
+
+  .hero-specs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .spec-item {
+    background: var(--panel);
+    padding: 14px 18px;
+  }
+  .spec-label { font-size: 10px; color: var(--muted); letter-spacing: .2em; text-transform: uppercase; margin-bottom: 4px; }
+  .spec-val   { font-size: 13px; color: var(--text); font-weight: 700; }
+
+  /* ── LAYOUT ── */
+  .container {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 40px 120px;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    padding: 60px 0 0;
+    border-top: 1px solid var(--border);
+    margin-top: 60px;
+  }
+  .section:first-child { border-top: none; margin-top: 0; }
+
+  .section-num {
+    font-size: 10px;
+    letter-spacing: .4em;
+    color: var(--red);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .section-title {
+    font-family: 'Noto Serif JP', serif;
+    font-size: clamp(20px, 3vw, 28px);
+    font-weight: 700;
+    color: #fff;
+    margin-bottom: 28px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* ── BODY TEXT ── */
+  p {
+    color: #c4c8d6;
+    margin-bottom: 18px;
+  }
+  p:last-child { margin-bottom: 0; }
+
+  strong { color: var(--text); font-weight: 700; }
+
+  /* ── PITCH BOX ── */
+  .pitch-box {
+    background: rgba(192,57,43,.06);
+    border: 1px solid rgba(192,57,43,.25);
+    border-radius: 10px;
+    padding: 24px 28px;
+    font-size: 15px;
+    line-height: 2;
+    color: #d8b0ac;
+    margin-bottom: 20px;
+  }
+
+  /* ── ANNOUNCE ── */
+  .announce {
+    background: rgba(0,0,0,.4);
+    border-left: 3px solid var(--red);
+    border-radius: 0 8px 8px 0;
+    padding: 18px 22px;
+    font-style: italic;
+    color: #c8a0a0;
+    margin: 24px 0;
+    font-size: 14px;
+    line-height: 1.9;
+  }
+
+  /* ── KEYWORD GRID ── */
+  .kw-label {
+    font-size: 9px;
+    letter-spacing: .5em;
+    color: var(--blue);
+    text-transform: uppercase;
+    margin: 32px 0 12px;
+    opacity: .7;
+  }
+  .kw-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  .kw-card {
+    background: rgba(79,195,247,.05);
+    border: 1px solid rgba(79,195,247,.15);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .kw-card .kw-name { font-size: 13px; font-weight: 700; color: var(--blue); margin-bottom: 5px; }
+  .kw-card .kw-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── SUBSECTION ── */
+  .subsection {
+    margin-top: 40px;
+  }
+  .subsection-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .subsection-title .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--red);
+    color: #fff;
+    letter-spacing: .05em;
+    font-weight: 400;
+  }
+  .subsection-title .badge.blue { background: rgba(79,195,247,.2); color: var(--blue); }
+  .subsection-title .badge.gold { background: rgba(212,175,55,.15); color: var(--gold); }
+
+  /* ── FLOW ── */
+  .flow {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    margin: 16px 0;
+    row-gap: 8px;
+  }
+  .flow-step {
+    font-size: 12px;
+    padding: 5px 14px;
+    background: rgba(255,255,255,.04);
+    border-radius: 6px;
+    color: var(--text);
+  }
+  .flow-arr { color: var(--muted); font-size: 14px; }
+
+  /* ── CHAR LIST ── */
+  .char-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .char-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+  }
+  .char-avatar {
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    border: 2px solid;
+    flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px; font-weight: 900;
+  }
+  .char-body {}
+  .char-name { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 3px; }
+  .char-act  { font-size: 11px; color: var(--blue); margin-bottom: 4px; }
+  .char-desc { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── NFT GRID ── */
+  .nft-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 14px;
+    margin-top: 8px;
+  }
+  .nft-card {
+    background: var(--panel);
+    border: 1px solid rgba(212,175,55,.15);
+    border-radius: 10px;
+    padding: 18px 16px;
+  }
+  .nft-num   { font-size: 10px; color: var(--gold); letter-spacing: .2em; margin-bottom: 6px; font-weight: 700; }
+  .nft-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+  .nft-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── COST TABLE ── */
+  .cost-note {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 20px;
+    padding: 12px 16px;
+    background: rgba(255,255,255,.03);
+    border-radius: 6px;
+    border-left: 2px solid var(--muted);
+  }
+  .cost-section { margin-bottom: 24px; }
+  .cost-section-title {
+    font-size: 11px;
+    letter-spacing: .2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid var(--border);
+  }
+  .cost-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+    font-size: 13px;
+    gap: 16px;
+  }
+  .cost-row .item { color: #b0b8c8; flex: 1; }
+  .cost-row .amt  { color: var(--text); font-weight: 700; white-space: nowrap; }
+  .cost-row .amt.free { color: #2ecc71; }
+  .cost-total {
+    display: flex;
+    justify-content: space-between;
+    padding: 16px 0 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #fff;
+    border-top: 1px solid rgba(255,255,255,.15);
+    margin-top: 8px;
+  }
+  .cost-total .total-amt { color: var(--gold); }
+
+  /* ── TIMELINE ── */
+  .timeline {
+    position: relative;
+    padding-left: 28px;
+    margin-top: 8px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 5px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: var(--border);
+  }
+  .tl-item {
+    position: relative;
+    margin-bottom: 28px;
+  }
+  .tl-item::before {
+    content: '';
+    position: absolute;
+    left: -23px; top: 7px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--red);
+    border: 2px solid var(--bg);
+  }
+  .tl-item:nth-child(2)::before { background: #1a6fa8; }
+  .tl-item:nth-child(3)::before { background: var(--blue); }
+  .tl-item:nth-child(4)::before { background: var(--gold); }
+  .tl-item:nth-child(5)::before { background: #2ecc71; }
+  .tl-month { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
+  .tl-phase { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 5px; }
+  .tl-desc  { font-size: 12px; color: var(--muted); line-height: 1.6; }
+
+  /* ── WHY NOW ── */
+  .why-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-top: 8px;
+  }
+  .why-item {
+    display: flex;
+    gap: 16px;
+    align-items: flex-start;
+  }
+  .why-num {
+    font-size: 22px;
+    font-weight: 900;
+    color: rgba(192,57,43,.3);
+    line-height: 1;
+    flex-shrink: 0;
+    width: 28px;
+    font-family: 'Noto Serif JP', serif;
+  }
+  .why-body {}
+  .why-title { font-size: 13px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+  .why-desc  { font-size: 13px; color: var(--muted); line-height: 1.7; }
+
+  /* ── FOOTER ── */
+  .site-footer {
+    border-top: 1px solid var(--border);
+    padding: 40px;
+    text-align: center;
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 2;
+  }
+  .site-footer a { color: var(--blue); text-decoration: none; }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .site-header, .hero, .container { padding-left: 20px; padding-right: 20px; }
+    .hero { padding-top: 48px; padding-bottom: 40px; }
+    .flow { flex-direction: column; align-items: flex-start; }
+    .char-card { flex-direction: column; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ===== HEADER ===== -->
+<header class="site-header">
+  <span class="logo">GAME PITCH DECK</span>
+  <span class="meta">YOSHI &nbsp;|&nbsp; 2026 &nbsp;|&nbsp; SHUEISHA GAMES</span>
+</header>
+
+<!-- ===== HERO ===== -->
+<div class="hero">
+  <div class="hero-label">Game Design Document — v1.1</div>
+  <h1 class="hero-title">ひとの死に方が<br>書いてある本</h1>
+
+  <div class="hero-tags">
+    <span class="tag red">タワーディフェンス</span>
+    <span class="tag">×</span>
+    <span class="tag red">サスペンス RPG</span>
+    <span class="tag">×</span>
+    <span class="tag gold">NFT / ブロックチェーン</span>
+  </div>
+
+  <div class="hero-specs">
+    <div class="spec-item">
+      <div class="spec-label">Platform</div>
+      <div class="spec-val">スマートフォン（iOS・Android）</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">Target</div>
+      <div class="spec-val">15〜30歳</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">Scale</div>
+      <div class="spec-val">インディー・ソロ開発</div>
+    </div>
+    <div class="spec-item">
+      <div class="spec-label">Rating</div>
+      <div class="spec-val">CERO C（15歳以上）</div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BODY ===== -->
+<div class="container">
+
+  <!-- 1. エレベーターピッチ -->
+  <div class="section">
+    <div class="section-num">01 — Elevator Pitch</div>
+    <h2 class="section-title">エレベーターピッチ</h2>
+    <div class="pitch-box">
+      死に魅了された仲間が裏切るかもしれない。信じるべき友か——選択が生死を分けるタワーディフェンス×サスペンスRPGです。
+    </div>
+    <p>閉じ込められた校舎、怪物の群れ、そして仲間全員の「死に方」が書かれた一冊の本。プレイヤーは教室を守りながら屋上を目指しますが、本当の脅威は怪物だけではありません。「死への誘惑」に飲み込まれた仲間が、いつ刃を向けるかわからない緊張が常につきまといます。</p>
+    <p>生存か、絆か——すべての選択が結末を変えます。</p>
+  </div>
+
+  <!-- 2. ゲーム概要 -->
+  <div class="section">
+    <div class="section-num">02 — Overview</div>
+    <h2 class="section-title">ゲーム概要</h2>
+    <p>本作はタワーディフェンスとサスペンスRPGを組み合わせた新感覚ゲームです。プレイヤーはモンスターの波状攻撃から教室を守る「防衛パート」と、仲間の心理状態を管理し裏切りを防ぐ「コミュニケーションパート」を交互に攻略していきます。さらにブロックチェーン技術を活用したNFTシステムを導入します。救い出したキャラクターには世界に唯一のNFTが発行され、ゲーム外でも価値を持つ資産となります。</p>
+
+    <div class="subsection">
+      <div class="subsection-title">3つの強み</div>
+      <div class="nft-grid" style="margin-top:0">
+        <div class="nft-card" style="border-color:rgba(192,57,43,.2)">
+          <div class="nft-num" style="color:#e57070">🎭 人間ドラマ</div>
+          <div class="nft-desc">仲間の裏切りや死への誘惑という心理サスペンスがゲームプレイに直結。防衛と仲間管理の二重の緊張感を生み出します。</div>
+        </div>
+        <div class="nft-card" style="border-color:rgba(79,195,247,.15)">
+          <div class="nft-num" style="color:var(--blue)">🏰 戦略性</div>
+          <div class="nft-desc">教室ごとに異なる地形や防衛ラインを持つタワーディフェンス設計。プレイヤーは毎ステージ異なる判断を迫られます。</div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-num">⛓️ ブロックチェーン連携</div>
+          <div class="nft-desc">NFTによるキャラクター所有権の証明や、仮想通貨を使った経済圏をゲームに統合しています。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3. ストーリー -->
+  <div class="section">
+    <div class="section-num">03 — Story</div>
+    <h2 class="section-title">ストーリー</h2>
+    <p>気づくと教室で目が覚め、いつの間にか夜になっていた。外の闇から怪物の群れが押し寄せ、廊下は瞬く間に危険地帯と化す。教室に逃げ込み、鍵をかけ、机でバリケードを築くが、怪物たちは壁を破って侵入しようとし始める。</p>
+    <p>絶望の瞬間、主人公たちの内に眠っていた不思議な力「アクト」が目覚め、初めての撃退に成功する。そのとき、無機質なアナウンスが校内に響く。</p>
+    <div class="announce">
+      「校舎の各教室に生存者がいることを確認。外への脱出は死を意味します。生存を望む者は屋上を目指してください。」
+    </div>
+    <p>屋上への脱出——それが唯一の活路。しかし怪物は定期的に沸き続け、教室でしのぎながら少しずつ進むしかない。しかも校舎の空間はめちゃくちゃになっており、果てしなく続く廊下、教室の配置も変わっている。主人公はある夜みた夢を思い出す。謎の存在から手渡された一冊の本——そこにはこの校舎にいる全員の<strong>死に方</strong>が細かく書かれていた。</p>
+    <p>本は主人公だけが読める。本に書かれた未来は変えられるのか。それとも、書かれた通りに全員が死んでいくのか——。</p>
+
+    <div class="kw-label">KEYWORD</div>
+    <div class="kw-grid">
+      <div class="kw-card">
+        <div class="kw-name">アクト</div>
+        <div class="kw-desc">校舎内でのみ発現する超常能力。教室間の移動・防衛スキル・攻撃などに使用。キャラクターによって効果が変わります。</div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-name">死の本</div>
+        <div class="kw-desc">仲間全員の死因が記された書。誘惑パラメータの変動を先読みでき、裏切りの予防に役立てられます。死因は直接的な闇落ちのトリガーではなく、注意すべきギミックを示唆します。</div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-name">加護</div>
+        <div class="kw-desc">教室内では怪物が自然発生しない謎の結界。教室だけが安全地帯で、廊下や外は常に危険です。</div>
+      </div>
+      <div class="kw-card">
+        <div class="kw-name">闇落ち</div>
+        <div class="kw-desc">誘惑度が100に達したキャラクターが敵化する状態。1対1のターン制バトルで対処しなければ防衛が崩壊します。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 4. ゲームシステム -->
+  <div class="section">
+    <div class="section-num">04 — Game Systems</div>
+    <h2 class="section-title">ゲームシステム</h2>
+
+    <div class="subsection">
+      <div class="subsection-title">全体フロー</div>
+      <div class="flow">
+        <span class="flow-step">コミュニケーション</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">防衛準備</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">ウェーブ防衛</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">移動判断</span>
+        <span class="flow-arr">→</span>
+        <span class="flow-step">（繰り返し）屋上へ</span>
+      </div>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">🏰 タワーディフェンスパート <span class="badge">DEFENSE</span></div>
+      <p>教室を1ステージとし、廊下・窓・扉から怪物が侵攻してきます。机・棚・ロッカーでバリケードを構築し、仲間ごとのアクトスキルで撃退します。ウェーブは小型雑魚→エリート→ボスの3段階で構成されます。</p>
+      <p>教室固有のギミックも存在します。理科室では薬品トラップが使え、体育館は広大で難易度が高め、図書室では本を燃やして火力を上げることができます。敵も徘徊者・突進型・浸透型・感染者とバリエーション豊富です。</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">🎭 仲間管理パート <span class="badge blue">SUSPENSE</span></div>
+      <p>仲間キャラクターには隠しパラメータ「<strong>死への誘惑度（0〜100）</strong>」が存在します。仲間の死亡目撃・食料不足・孤立・精神攻撃などで上昇し、100に達すると「闇落ち」化。バリケード破壊や怪物誘導などの妨害行動を取り始め、1対1のターン制バトルが発生します。</p>
+      <p>選択式の会話、死の本による先読み、アイテムの分配などで予防することができます。プレイヤーは「教室を守る」と同時に「仲間の心を守る」という二重のジレンマに常に直面します。</p>
+    </div>
+
+    <div class="subsection">
+      <div class="subsection-title">⛓️ ブロックチェーン・NFT要素 <span class="badge gold">WEB3</span></div>
+      <p style="font-size:12px;color:var(--muted);margin-bottom:16px;">※ ブロックチェーン要素はゲームの補助的な付加価値として位置づけており、メインストーリーは無課金でフルクリア可能です。</p>
+      <div class="nft-grid">
+        <div class="nft-card">
+          <div class="nft-num">01</div>
+          <div class="nft-title">🏆 キャラクターNFT</div>
+          <div class="nft-desc">生存させたキャラ1人ごとに世界唯一のNFTが発行。全員生存の「完全生存NFT」は最高レアリティ。</div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-num">02</div>
+          <div class="nft-title">🪙 アクトコイン</div>
+          <div class="nft-desc">プレイで獲得またはBASE・SOLANAで購入できるゲーム内通貨。防衛アイテムの購入に使用。</div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-num">03</div>
+          <div class="nft-title">⚔️ レイドモード</div>
+          <div class="nft-desc">他プレイヤーの防衛教室へ侵攻。撃破で素材略奪またはNFTを賭けた対戦が可能。</div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-num">04</div>
+          <div class="nft-title">👑 完全生存NFT</div>
+          <div class="nft-desc">全キャラ闇落ちなしで屋上クリアした場合のみ発行される最レア枠。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 5. キャラクター設計 -->
+  <div class="section">
+    <div class="section-num">05 — Characters</div>
+    <h2 class="section-title">キャラクター設計</h2>
+    <p>主人公はプレイヤーが命名する形式です。死の本を読める唯一の存在で、アクトの力は「読む・記録する・予知する」タイプ。仲間の死に方を知りながら、その未来を変えようともがく重さを背負います。</p>
+    <p>校舎には卒業生なども集められており、登場人物には共通点があります。仲間キャラクターは5〜8名を想定しています。</p>
+
+    <div class="char-list">
+      <div class="char-card">
+        <div class="char-avatar" style="border-color:#4fc3f7;background:#0d1f33;color:#4fc3f7">蒼</div>
+        <div class="char-body">
+          <div class="char-name">如月 蒼　男・17歳</div>
+          <div class="char-act">⚡ ACT：電撃系・範囲攻撃</div>
+          <div class="char-desc">冷静な幼馴染で、表向きは頼れる存在。理性が崩れると誘惑度が急激に上昇する。</div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="border-color:#e91e8c;background:#150d15;color:#e91e8c">花</div>
+        <div class="char-body">
+          <div class="char-name">橘 花音　女・16歳</div>
+          <div class="char-act">💊 ACT：回復・シールド</div>
+          <div class="char-desc">明るく仲間を励ます役割。仲間の死亡を目撃すると誘惑度が急上昇する。</div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="border-color:#9b59b6;background:#12091a;color:#9b59b6">薫</div>
+        <div class="char-body">
+          <div class="char-name">宇佐美 薫　男・18歳</div>
+          <div class="char-act">🔮 ACT：情報操作・妨害</div>
+          <div class="char-desc">謎の多い先輩で情報通。常に誘惑度が高めに設定されており、最初から怪しい存在。</div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="border-color:#e74c3c;background:#15090a;color:#e74c3c">玲</div>
+        <div class="char-body">
+          <div class="char-name">日向 玲　女・17歳</div>
+          <div class="char-act">🔥 ACT：火炎・爆発</div>
+          <div class="char-desc">孤独を好む反骨タイプ。孤立すると誘惑度が急上昇する。</div>
+        </div>
+      </div>
+      <div class="char-card">
+        <div class="char-avatar" style="border-color:#2ecc71;background:#0d150d;color:#2ecc71">徹</div>
+        <div class="char-body">
+          <div class="char-name">峰岸 徹　男・17歳</div>
+          <div class="char-act">💪 ACT：物理強化</div>
+          <div class="char-desc">ムードメーカーで体育会系。食料不足になると誘惑度が上昇する。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 6. 世界観・美術 -->
+  <div class="section">
+    <div class="section-num">06 — Art Direction</div>
+    <h2 class="section-title">世界観・美術設計方針</h2>
+    <p>ビジュアルスタイルはセルルック2Dと3D背景の組み合わせを想定しています。ダンガンロンパシリーズのような平面キャラクター立ち絵と、陰影のある校舎背景を組み合わせた表現です。</p>
+    <p>BGMは日常・緊迫・絶望の3段階で動的に変化し、怪物が接近するとリアルタイムで変容する演出を加えます。闇落ち化シーンは一枚絵スチルで描写し、感情の振れ幅をビジュアルで体感させることを重視します。</p>
+  </div>
+
+  <!-- 7. 収益モデル -->
+  <div class="section">
+    <div class="section-num">07 — Revenue</div>
+    <h2 class="section-title">収益モデル</h2>
+    <div class="nft-grid" style="margin-top:0">
+      <div class="nft-card" style="border-color:var(--border)">
+        <div class="nft-title">📱 本体販売</div>
+        <div class="nft-desc">スマートフォン版：基本無料＋有料DLC</div>
+      </div>
+      <div class="nft-card" style="border-color:var(--border)">
+        <div class="nft-title">🪙 アクトコイン販売</div>
+        <div class="nft-desc">プレイで獲得 or 課金購入。防衛素材に使用。</div>
+      </div>
+      <div class="nft-card" style="border-color:var(--border)">
+        <div class="nft-title">💎 NFT流通手数料</div>
+        <div class="nft-desc">二次流通時のロイヤリティ（5〜10%）</div>
+      </div>
+      <div class="nft-card" style="border-color:var(--border)">
+        <div class="nft-title">🎨 コスメティックDLC</div>
+        <div class="nft-desc">スキン・エフェクト変更（ゲームバランスに無影響）</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 8. 開発費 -->
+  <div class="section">
+    <div class="section-num">08 — Budget</div>
+    <h2 class="section-title">開発費と内訳</h2>
+    <div class="cost-note">開発者YOSHIがプログラム・ブロックチェーン開発・ゲームデザインを自担当し、アートと音楽を外注する前提での概算です。</div>
+
+    <div class="cost-section">
+      <div class="cost-section-title">開発ツール</div>
+      <div class="cost-row"><span class="item">Unity パーソナルライセンス</span><span class="amt free">¥0（無料）</span></div>
+      <div class="cost-row"><span class="item">Adobe Creative Cloud（18ヶ月）</span><span class="amt">¥126,000</span></div>
+    </div>
+
+    <div class="cost-section">
+      <div class="cost-section-title">キャラクター・アート（外注）</div>
+      <div class="cost-row"><span class="item">立ち絵＋表情差分（8キャラ × ¥40,000）</span><span class="amt">¥320,000</span></div>
+      <div class="cost-row"><span class="item">イベントスチル一枚絵（8枚 × ¥50,000）</span><span class="amt">¥400,000</span></div>
+      <div class="cost-row"><span class="item">校舎背景（12箇所 × ¥25,000）</span><span class="amt">¥300,000</span></div>
+      <div class="cost-row"><span class="item">怪物デザイン（8体 × ¥20,000）</span><span class="amt">¥160,000</span></div>
+      <div class="cost-row"><span class="item">UI設計（一式）</span><span class="amt">¥100,000</span></div>
+    </div>
+
+    <div class="cost-section">
+      <div class="cost-section-title">音楽・効果音（外注）</div>
+      <div class="cost-row"><span class="item">BGM（10曲 × ¥20,000）</span><span class="amt">¥200,000</span></div>
+      <div class="cost-row"><span class="item">効果音パック（一式）</span><span class="amt">¥30,000</span></div>
+    </div>
+
+    <div class="cost-section">
+      <div class="cost-section-title">プログラム・ブロックチェーン</div>
+      <div class="cost-row"><span class="item">ゲームロジック・UI実装（YOSHI自担当）</span><span class="amt free">¥0</span></div>
+      <div class="cost-row"><span class="item">NFTスマートコントラクト（YOSHI自担当）</span><span class="amt free">¥0</span></div>
+      <div class="cost-row"><span class="item">NFTガス代・テスト費用（BASE / SOLANA）</span><span class="amt">¥50,000</span></div>
+    </div>
+
+    <div class="cost-section">
+      <div class="cost-section-title">インフラ・その他</div>
+      <div class="cost-row"><span class="item">サーバー AWS / GCP（月額¥15,000 × 24ヶ月）</span><span class="amt">¥360,000</span></div>
+      <div class="cost-row"><span class="item">トレーラー制作（外注）</span><span class="amt">¥150,000</span></div>
+      <div class="cost-row"><span class="item">SNS広告費</span><span class="amt">¥100,000</span></div>
+      <div class="cost-row"><span class="item">ストア登録（Steam・Apple・Google）</span><span class="amt">¥26,000</span></div>
+      <div class="cost-row"><span class="item">法務（利用規約・NFT規約・PP）</span><span class="amt">¥100,000</span></div>
+      <div class="cost-row"><span class="item">予備費（10%）</span><span class="amt">¥242,000</span></div>
+    </div>
+
+    <div class="cost-total">
+      <span>概算合計</span>
+      <span class="total-amt">約 ¥2,664,000（約266万円）</span>
+    </div>
+  </div>
+
+  <!-- 9. スケジュール -->
+  <div class="section">
+    <div class="section-num">09 — Schedule</div>
+    <h2 class="section-title">制作スケジュール（24ヶ月）</h2>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-month">〜2ヶ月目</div>
+        <div class="tl-phase">企画・設計フェーズ</div>
+        <div class="tl-desc">システム仕様確定・ワイヤーフレーム作成・シナリオ第1稿・外注先選定</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-month">〜6ヶ月目</div>
+        <div class="tl-phase">Prototype　▶ 審査提出</div>
+        <div class="tl-desc">タワーディフェンス・仲間管理の2つのコアパート実装</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-month">〜12ヶ月目</div>
+        <div class="tl-phase">Trial Version　▶ 審査提出</div>
+        <div class="tl-desc">1〜3章実装・NFT基盤β版・ユーザーテスト</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-month">〜20ヶ月目</div>
+        <div class="tl-phase">Beta　▶ 審査提出</div>
+        <div class="tl-desc">全章実装・オンラインレイドモード・NFTマーケット連携</div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-month">〜24ヶ月目</div>
+        <div class="tl-phase">Master Release 🎉</div>
+        <div class="tl-desc">バグ修正・英語ローカライズ・App Store リリース</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 10. なぜ今か -->
+  <div class="section">
+    <div class="section-num">10 — Why Now</div>
+    <h2 class="section-title">なぜ今、このゲームか</h2>
+    <div class="why-list">
+      <div class="why-item">
+        <div class="why-num">1</div>
+        <div class="why-body">
+          <div class="why-title">Web3 × ゲームの成熟期</div>
+          <div class="why-desc">NFTゲームへの批判が「ゲーム性のなさ」に集中してきた反省から、本作は「ゲームが面白い結果としてNFTが得られる」設計を徹底します。ゲームプレイ自体の質を最優先とし、その延長にNFT経済が自然に存在する構造を目指します。</div>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-num">2</div>
+        <div class="why-body">
+          <div class="why-title">サスペンス × タワーディフェンスの空白地帯</div>
+          <div class="why-desc">それぞれのジャンルを好むプレイヤー層を両方取り込める新規IPとなりうる可能性があります。現時点でこの2ジャンルを融合したタイトルは存在しません。</div>
+        </div>
+      </div>
+      <div class="why-item">
+        <div class="why-num">3</div>
+        <div class="why-body">
+          <div class="why-title">キャラクター所有欲の設計</div>
+          <div class="why-desc">完全生存NFTの稀少性が「最高の結末を目指すプレイ動機」を強化します。NFT目的のプレイヤーがゲームにも熱中し、ゲーム目的のプレイヤーがNFTにも興味を持つ循環を生み出します。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- /container -->
+
+<!-- ===== FOOTER ===== -->
+<footer class="site-footer">
+  <div style="margin-bottom:8px;font-size:14px;color:#c0c4d0;font-weight:700;">ひとの死に方が書いてある本</div>
+  <div>企画書 v1.1　&nbsp;|&nbsp;　作成日：2026年5月</div>
+  <div style="margin-top:6px;">
+    Developer : YOSHI　&nbsp;|&nbsp;
+    Contact : <a href="mailto:blightlight837@gmail.com">blightlight837@gmail.com</a>
+  </div>
+</footer>
+
+</body>
+</html>
